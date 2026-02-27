@@ -98,7 +98,7 @@ export default function Sidebar({
                 <button
                     onClick={() => setShowGroupModal(true)}
                     title="Create group chat"
-                    className="flex-shrink-0 p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                    className="flex-shrink-0 p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors cursor-pointer"
                 >
                     <Plus className="w-4 h-4" />
                 </button>
@@ -178,7 +178,7 @@ export default function Sidebar({
                                     <button
                                         key={c._id}
                                         onClick={() => onSelectConversation(c._id)}
-                                        className={`w-full text-left flex items-start p-2.5 rounded-xl transition-all ${isActive ? "bg-blue-50 ring-1 ring-blue-100" : "hover:bg-gray-50"}`}
+                                        className={`w-full text-left flex items-start p-2.5 rounded-xl transition-all cursor-pointer ${isActive ? "bg-blue-50 ring-1 ring-blue-100" : "hover:bg-gray-50"}`}
                                     >
                                         <div className="relative flex-shrink-0 mt-0.5">
                                             {displayImage ? (
@@ -262,7 +262,7 @@ export default function Sidebar({
                                 <button
                                     key={u._id}
                                     onClick={() => startConversation(u._id)}
-                                    className="w-full text-left flex items-center p-2.5 rounded-xl hover:bg-gray-50 transition-colors"
+                                    className="w-full text-left flex items-center p-2.5 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
                                 >
                                     <div className="relative flex-shrink-0">
                                         {u.image ? (
@@ -301,11 +301,14 @@ export default function Sidebar({
 
             {/* Group Creation Modal */}
             {showGroupModal && (
-                <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-fade-in">
+                <div
+                    className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 cursor-default"
+                    onClick={() => { setShowGroupModal(false); setSelectedGroupMembers([]); setGroupName(""); }}
+                >
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-fade-in" onClick={e => e.stopPropagation()}>
                         <div className="p-4 border-b border-gray-100 flex items-center justify-between">
                             <h3 className="text-base font-bold text-gray-800">New Group Chat</h3>
-                            <button onClick={() => { setShowGroupModal(false); setSelectedGroupMembers([]); setGroupName(""); }} className="p-1 rounded-full hover:bg-gray-100">
+                            <button onClick={() => { setShowGroupModal(false); setSelectedGroupMembers([]); setGroupName(""); }} className="p-1 rounded-full hover:bg-gray-100 cursor-pointer">
                                 <X className="w-5 h-5 text-gray-500" />
                             </button>
                         </div>
