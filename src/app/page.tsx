@@ -27,6 +27,31 @@ export default function Home() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  // ── History API: push state when opening a conversation on mobile ──
+  const openConversation = useCallback((id: Id<"conversations">) => {
+    setSelectedConversationId(id);
+    // Push a history entry so the browser back button can pop it
+    window.history.pushState({ conversationOpen: true }, "");
+  }, []);
+
+  const closeConversation = useCallback(() => {
+    setSelectedConversationId(null);
+  }, []);
+
+  // Listen for browser/Android back button (popstate)
+  useEffect(() => {
+    const onPopState = () => {
+      // If a conversation is open, close it instead of leaving the page
+      setSelectedConversationId(prev => {
+        if (prev !== null) return null;
+        return prev; // already on sidebar, let browser navigate normally
+      });
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  // ── Drag-to-resize (desktop only) ──
   const onMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     isDragging.current = true;
@@ -68,20 +93,20 @@ export default function Home() {
     );
   }
 
-  // ── Mobile: full-screen sidebar → full-screen chat (no split) ──
+  // ── Mobile: full-screen sidebar ↔ full-screen chat ──
   if (!isDesktop) {
     return (
       <div className="flex flex-col h-screen w-full bg-white overflow-hidden text-gray-900 font-sans">
         {selectedConversationId ? (
           <ChatArea
             conversationId={selectedConversationId}
-            onBack={() => setSelectedConversationId(null)}
+            onBack={closeConversation}
           />
         ) : (
           <div className="flex-1 overflow-hidden">
             <Sidebar
               selectedConversationId={selectedConversationId}
-              onSelectConversation={setSelectedConversationId}
+              onSelectConversation={openConversation}
             />
           </div>
         )}
