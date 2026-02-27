@@ -329,7 +329,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
     }
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 w-full overflow-hidden">
+        <div className="flex flex-col h-full w-full overflow-hidden bg-slate-50">
             {/* Lightbox */}
             {lightbox && <AvatarLightbox src={lightbox.src} name={lightbox.name} onClose={() => setLightbox(null)} />}
 
@@ -376,7 +376,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
             {/* ── Header ── */}
             {isSelecting ? (
                 /* Multi-select header */
-                <div className="px-4 py-3 bg-blue-600 flex items-center gap-3 shadow-sm z-10 sticky top-0 flex-shrink-0 min-h-[64px]">
+                <div className="px-4 py-3 bg-blue-600 flex items-center gap-3 shadow-sm z-10 flex-shrink-0 min-h-[64px]">
                     <button onClick={() => setSelectedIds(new Set())} className="p-1.5 text-white/80 hover:bg-white/10 rounded-full">
                         <X className="w-5 h-5" />
                     </button>
@@ -390,7 +390,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
                 </div>
             ) : (
                 /* Normal header */
-                <div className="px-4 py-3 bg-white border-b border-gray-100 flex items-center shadow-sm z-10 sticky top-0 flex-shrink-0 min-h-[64px]">
+                <div className="px-4 py-3 bg-white border-b border-gray-100 flex items-center shadow-sm z-10 flex-shrink-0 min-h-[64px]">
                     <button onClick={onBack} className="mr-2 p-1.5 md:hidden text-gray-500 hover:bg-gray-100 rounded-full transition-colors">
                         <ArrowLeft className="w-5 h-5" />
                     </button>
