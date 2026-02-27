@@ -114,12 +114,31 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
     const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
         messagesEndRef.current?.scrollIntoView({ behavior });
     };
+    // Track whether we've done the initial scroll for the current conversation
+    const initialScrollDone = useRef(false);
+
+    // Reset the flag and clear scroll position whenever conversation changes
+    useEffect(() => {
+        initialScrollDone.current = false;
+        // Reset scroll container to top so we don't show wrong position while loading
+        if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
+    }, [conversationId]);
+
+    // Scroll to bottom when messages first load for this conversation OR when new ones arrive
     useEffect(() => {
         if (!messages || messages.length === 0) return;
         markAsRead({ conversationId });
-        if (!scrollContainerRef.current) { scrollToBottom("instant"); return; }
-        const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
-        if (scrollHeight - scrollTop - clientHeight < 200) scrollToBottom("smooth");
+
+        if (!initialScrollDone.current) {
+            // First load for this conversation — always scroll to bottom instantly
+            scrollToBottom("instant");
+            initialScrollDone.current = true;
+        } else {
+            // Subsequent messages — only scroll if already near the bottom
+            if (!scrollContainerRef.current) return;
+            const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+            if (scrollHeight - scrollTop - clientHeight < 200) scrollToBottom("smooth");
+        }
     }, [messages?.length, conversationId]); // eslint-disable-line
 
     // ── Close context menu AND inline dropdown on any outside click / right-click ──

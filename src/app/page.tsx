@@ -14,9 +14,18 @@ export default function Home() {
   const { isLoaded, userId } = useAuth();
   const [selectedConversationId, setSelectedConversationId] = useState<Id<"conversations"> | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT);
+  const [isDesktop, setIsDesktop] = useState(false);
   const isDragging = useRef(false);
   const startX = useRef(0);
   const startWidth = useRef(SIDEBAR_DEFAULT);
+
+  // Detect desktop after mount (avoids SSR mismatch)
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const onMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -59,12 +68,34 @@ export default function Home() {
     );
   }
 
+  // ── Mobile: full-screen sidebar → full-screen chat (no split) ──
+  if (!isDesktop) {
+    return (
+      <div className="flex flex-col h-screen w-full bg-white overflow-hidden text-gray-900 font-sans">
+        {selectedConversationId ? (
+          <ChatArea
+            conversationId={selectedConversationId}
+            onBack={() => setSelectedConversationId(null)}
+          />
+        ) : (
+          <div className="flex-1 overflow-hidden">
+            <Sidebar
+              selectedConversationId={selectedConversationId}
+              onSelectConversation={setSelectedConversationId}
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Desktop: resizable split view ──
   return (
     <div className="flex h-screen w-full bg-white overflow-hidden text-gray-900 font-sans">
-      {/* Sidebar — hidden on mobile when conversation selected */}
+      {/* Sidebar */}
       <div
-        className={`flex-shrink-0 border-r border-gray-100 ${selectedConversationId ? 'hidden md:flex' : 'flex'} flex-col`}
-        style={{ width: typeof window !== "undefined" && window.innerWidth >= 768 ? sidebarWidth : undefined }}
+        className="flex-shrink-0 border-r border-gray-100 flex flex-col"
+        style={{ width: sidebarWidth }}
       >
         <Sidebar
           selectedConversationId={selectedConversationId}
@@ -72,18 +103,17 @@ export default function Home() {
         />
       </div>
 
-      {/* Drag handle — desktop only */}
+      {/* Drag handle */}
       <div
         onMouseDown={onMouseDown}
-        className="hidden md:flex flex-shrink-0 w-1 cursor-col-resize items-center justify-center group relative z-10 hover:bg-blue-100 transition-colors"
+        className="flex-shrink-0 w-1 cursor-col-resize flex items-center justify-center group relative z-10 hover:bg-blue-100 transition-colors"
         title="Drag to resize"
       >
-        {/* Visual pill indicator */}
         <div className="absolute h-8 w-1 rounded-full bg-gray-200 group-hover:bg-blue-400 transition-colors" />
       </div>
 
       {/* Chat area */}
-      <div className={`flex-1 flex-col h-full bg-slate-50 relative min-w-0 ${!selectedConversationId ? 'hidden md:flex' : 'flex'}`}>
+      <div className="flex-1 flex flex-col h-full bg-slate-50 relative min-w-0">
         {selectedConversationId ? (
           <ChatArea
             conversationId={selectedConversationId}

@@ -211,7 +211,7 @@ export default function Sidebar({
                                                 )}
                                             </div>
                                             <div className="flex justify-between items-center">
-                                                <p className={`text-xs truncate max-w-[170px] pr-1 ${hasUnread ? "text-gray-700 font-medium" : "text-gray-500"}`}>
+                                                <p className={`text-xs truncate flex-1 pr-1 ${hasUnread ? "text-gray-700 font-medium" : "text-gray-500"}`}>
                                                     {c.lastMessage ? (
                                                         c.lastMessage.isDeleted ? <span className="italic text-gray-400">Message deleted</span> : c.lastMessage.content
                                                     ) : (
