@@ -87,17 +87,18 @@ npm install
 Create a `.env.local` file in the project root:
 
 ```env
-# Convex
-NEXT_PUBLIC_CONVEX_URL=your_convex_deployment_url
+# Deployment used by `npx convex dev`
+CONVEX_DEPLOYMENT=dev:your-deployment-name   # team: your-team, project: your-project
 
-# Clerk
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-CLERK_SECRET_KEY=your_clerk_secret_key
+NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
 
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+NEXT_PUBLIC_CONVEX_SITE_URL=https://your-deployment.convex.site
+
+# Clerk auth
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+CLERK_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# CLERK_ISSUER_URL=https://your-clerk-subdomain.clerk.accounts.dev
 ```
 
 ### 4. Configure Clerk JWT with Convex
