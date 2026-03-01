@@ -1,11 +1,23 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
+// ── File Storage ──────────────────────────────────────────────────────────────
+export const generateUploadUrl = mutation({
+    args: {},
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Unauthorized");
+        return await ctx.storage.generateUploadUrl();
+    },
+});
+
 export const sendMessage = mutation({
     args: {
         conversationId: v.id("conversations"),
         content: v.string(),
         replyToId: v.optional(v.id("messages")),
+        fileId: v.optional(v.id("_storage")),
+        fileType: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -32,6 +44,8 @@ export const sendMessage = mutation({
             senderId: user._id,
             content: args.content,
             replyToId: args.replyToId,
+            fileId: args.fileId,
+            fileType: args.fileType,
         });
 
         await ctx.db.patch(args.conversationId, {
@@ -68,14 +82,21 @@ export const getMessages = query({
                     .withIndex("by_messageId", (q) => q.eq("messageId", message._id))
                     .collect();
 
-                const reactionMap: Record<string, { count: number; hasReacted: boolean }> = {};
+                const reactionMap: Record<string, { count: number; hasReacted: boolean; users: { name: string; image?: string; isMe: boolean }[] }> = {};
                 for (const r of reactions) {
-                    if (!reactionMap[r.emoji]) reactionMap[r.emoji] = { count: 0, hasReacted: false };
+                    if (!reactionMap[r.emoji]) reactionMap[r.emoji] = { count: 0, hasReacted: false, users: [] };
                     reactionMap[r.emoji].count++;
-                    if (currentUser && r.userId === currentUser._id) reactionMap[r.emoji].hasReacted = true;
+                    const isCurrentUser = currentUser ? r.userId === currentUser._id : false;
+                    if (isCurrentUser) reactionMap[r.emoji].hasReacted = true;
+                    const reactor = await ctx.db.get(r.userId);
+                    if (reactor) reactionMap[r.emoji].users.push({
+                        name: reactor.name ?? "Unknown",
+                        image: reactor.image,
+                        isMe: isCurrentUser,
+                    });
                 }
                 const formattedReactions = Object.entries(reactionMap).map(([emoji, data]) => ({
-                    emoji, count: data.count, hasReacted: data.hasReacted,
+                    emoji, count: data.count, hasReacted: data.hasReacted, users: data.users,
                 }));
 
                 // Quoted reply
@@ -84,13 +105,25 @@ export const getMessages = query({
                     const quotedMsg = await ctx.db.get(message.replyToId);
                     if (quotedMsg) {
                         const quotedSender = await ctx.db.get(quotedMsg.senderId);
+                        let quotedFileUrl: string | null = null;
+                        if (quotedMsg.fileId) {
+                            quotedFileUrl = await ctx.storage.getUrl(quotedMsg.fileId);
+                        }
                         replyTo = {
                             id: quotedMsg._id,
                             content: quotedMsg.isDeleted ? "This message was deleted" : quotedMsg.content,
                             senderName: quotedSender?.name ?? "Unknown",
                             isDeleted: quotedMsg.isDeleted ?? false,
+                            fileType: quotedMsg.fileType ?? null,
+                            fileUrl: quotedFileUrl,
                         };
                     }
+                }
+
+                // Resolve file URL from Convex storage
+                let fileUrl: string | null = null;
+                if (message.fileId) {
+                    fileUrl = await ctx.storage.getUrl(message.fileId);
                 }
 
                 return {
@@ -100,6 +133,7 @@ export const getMessages = query({
                     isMe: currentUser ? message.senderId === currentUser._id : false,
                     reactions: formattedReactions,
                     replyTo,
+                    fileUrl,
                 };
             })
         );
@@ -153,16 +187,39 @@ export const toggleReaction = mutation({
             .withIndex("by_tokenIdentifier", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
             .unique();
         if (!user) throw new Error("User not found");
-        const existingReaction = await ctx.db
+        // Check if the user already has any reaction on this message
+        const existingReactions = await ctx.db
             .query("reactions")
-            .withIndex("by_messageId_userId_emoji", (q) =>
-                q.eq("messageId", args.messageId).eq("userId", user._id).eq("emoji", args.emoji)
+            .withIndex("by_messageId_userId", (q) =>
+                q.eq("messageId", args.messageId).eq("userId", user._id)
             )
-            .unique();
-        if (existingReaction) {
-            await ctx.db.delete(existingReaction._id);
+            .collect();
+
+        if (existingReactions.length > 0) {
+            // Find if they reacted with the exact same emoji
+            const sameEmojiReaction = existingReactions.find(r => r.emoji === args.emoji);
+
+            // Regardless, remove all their existing reactions on this message
+            for (const r of existingReactions) {
+                await ctx.db.delete(r._id);
+            }
+
+            // If they clicked the same emoji, we just deleted it (toggled off). We don't add it back.
+            // If they clicked a DIFFERENT emoji, we now add the new one.
+            if (!sameEmojiReaction) {
+                await ctx.db.insert("reactions", {
+                    messageId: args.messageId,
+                    userId: user._id,
+                    emoji: args.emoji,
+                });
+            }
         } else {
-            await ctx.db.insert("reactions", { messageId: args.messageId, userId: user._id, emoji: args.emoji });
+            // They had no reactions, so just add the new one
+            await ctx.db.insert("reactions", {
+                messageId: args.messageId,
+                userId: user._id,
+                emoji: args.emoji,
+            });
         }
     }
 });

@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, ChevronDown, CornerUpLeft, Smile, Trash2 } from "lucide-react";
+import { Check, ChevronDown, CornerUpLeft, Smile, Trash2, X } from "lucide-react";
+import { useState } from "react";
 import { Id } from "../../../convex/_generated/dataModel";
 import { REACTION_EMOJIS, formatMessageTime } from "./utils";
 
@@ -20,7 +21,7 @@ interface MessageBubbleProps {
     onSelect: (id: string) => void;
     onSetDropdown: (id: string | null) => void;
     onContextMenu: (e: React.MouseEvent, msg: any) => void;
-    onOpenLightbox: (src: string, name: string) => void;
+    onOpenLightbox: (src: string, name: string, isAvatar?: boolean) => void;
     onTouchStart: (e: React.TouchEvent, msg: any) => void;
     onTouchMove: (e: React.TouchEvent, msg: any, el: HTMLDivElement) => void;
     onTouchEnd: (e: React.TouchEvent, msg: any) => void;
@@ -32,10 +33,17 @@ export default function MessageBubble({
     onReply, onDelete, onReact, onSelect, onSetDropdown,
     onContextMenu, onOpenLightbox, onTouchStart, onTouchMove, onTouchEnd,
 }: MessageBubbleProps) {
-    // Bubble border-radius — tighter corners for consecutive messages from same sender
+    const [reactionPopupOpen, setReactionPopupOpen] = useState(false);
+
     const bubbleRadius = isMe
         ? `rounded-2xl ${isSameAsPrev ? "rounded-tr-md" : ""} ${isSameAsNext ? "rounded-br-sm" : ""}`
         : `rounded-2xl ${isSameAsPrev ? "rounded-tl-md" : ""} ${isSameAsNext ? "rounded-bl-sm" : ""}`;
+
+    const reactions: { emoji: string; count: number; hasReacted: boolean; users: { name: string; image?: string }[] }[] =
+        m.reactions ?? [];
+    const totalReactionCount = reactions.reduce((s: number, r: any) => s + r.count, 0);
+    const visibleReactions = reactions.slice(0, 2);
+    const hiddenCount = totalReactionCount - visibleReactions.reduce((s: number, r: any) => s + r.count, 0);
 
     return (
         <div key={m._id}>
@@ -56,7 +64,7 @@ export default function MessageBubble({
 
             {/* ── Message row ── */}
             <div
-                className={`flex items-end gap-2 w-full ${isSameAsPrev ? "mt-0.5" : "mt-3"} ${isMe ? "flex-row-reverse" : "flex-row"} ${isSelected ? (isMe ? "bg-blue-50/60" : "bg-gray-100/60") : ""} rounded-xl transition-colors`}
+                className={`flex items-end gap-2 w-full ${isSameAsPrev ? "mt-1" : "mt-3"} ${isSameAsNext ? "mb-1" : "mb-3"} ${isMe ? "flex-row-reverse" : "flex-row"} ${isSelected ? (isMe ? "bg-blue-50/60" : "bg-gray-100/60") : ""} rounded-xl transition-colors`}
                 onContextMenu={e => onContextMenu(e, m)}
                 onTouchStart={e => onTouchStart(e, m)}
                 onTouchMove={e => {
@@ -112,14 +120,14 @@ export default function MessageBubble({
                                         {m.senderName?.charAt(0)}
                                     </div>
                                 )}
-                                <span className="text-[11px] font-bold text-indigo-500 leading-none">{m.senderName}</span>
+                                <span className="text-[11px] font-bold text-indigo-500 leading-none truncate max-w-[150px]">{m.senderName}</span>
                             </div>
                         )}
 
                         {/* Reply-to quoted block */}
                         {m.replyTo && (
                             <div
-                                className="mb-1.5 px-3 py-2 rounded-lg border-l-[3px] max-w-full cursor-pointer bg-white/95 border-blue-500 shadow-sm hover:bg-white transition-colors"
+                                className="mb-1.5 rounded-lg border-l-[3px] max-w-full cursor-pointer bg-white/95 border-blue-500 shadow-sm hover:bg-white transition-colors overflow-hidden"
                                 onClick={() => {
                                     const el = document.getElementById(`msg-${m.replyTo.id}`);
                                     el?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -127,31 +135,71 @@ export default function MessageBubble({
                                     setTimeout(() => el?.classList.remove("ring-2", "ring-blue-400", "rounded-xl"), 1500);
                                 }}
                             >
-                                <p className="text-[10px] font-bold mb-0.5 text-blue-600">{m.replyTo.senderName}</p>
-                                <p className={`text-[12px] truncate text-gray-600 ${m.replyTo.isDeleted ? "italic opacity-70" : ""}`}>
-                                    {m.replyTo.content}
-                                </p>
+                                {m.replyTo.fileType === "image" && m.replyTo.fileUrl ? (
+                                    <div className="flex items-center gap-2 pr-3">
+                                        <img src={m.replyTo.fileUrl} alt="Replied photo" className="w-12 h-12 object-cover flex-shrink-0" />
+                                        <div className="flex-1 min-w-0 py-1">
+                                            <p className="text-[10px] font-bold text-blue-600 truncate">{m.replyTo.senderName}</p>
+                                            <p className="text-[11px] text-gray-500 flex items-center gap-1 mt-0.5">
+                                                <span>📷</span><span>Photo</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : m.replyTo.fileType === "video" ? (
+                                    <div className="flex items-center gap-2 px-3 py-2">
+                                        <span className="text-xl">🎥</span>
+                                        <div className="min-w-0">
+                                            <p className="text-[10px] font-bold text-blue-600 truncate">{m.replyTo.senderName}</p>
+                                            <p className="text-[11px] text-gray-500">Video</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="px-3 py-2">
+                                        <p className="text-[10px] font-bold mb-0.5 text-blue-600 truncate">{m.replyTo.senderName}</p>
+                                        <p className={`text-[12px] truncate text-gray-600 ${m.replyTo.isDeleted ? "italic opacity-70" : ""}`}>
+                                            {m.replyTo.content}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         )}
 
                         {/* Main bubble */}
                         <div
                             id={`msg-${m._id}`}
-                            className={`relative px-3.5 pt-2 pb-2 text-[14px] leading-snug break-words shadow-sm w-fit transition-all ${bubbleRadius} ${isMe ? "bg-blue-600 text-white" : "bg-white text-gray-800 border border-gray-100"}`}
+                            className={`relative px-3.5 pt-2 pb-2 text-[14px] leading-snug break-words shadow-sm w-fit transition-all ${bubbleRadius} ${isMe ? "bg-blue-50 text-gray-800 border border-blue-300" : "bg-white text-gray-800 border border-gray-100"}`}
                         >
                             {m.isDeleted ? (
                                 <>
-                                    <span className={`italic text-[13px] ${isMe ? "text-blue-200" : "text-gray-400"}`}>
+                                    <span className={`italic text-[13px] ${isMe ? "text-slate-500" : "text-gray-500"}`}>
                                         This message was deleted
                                     </span>
-                                    <span className={`block text-right text-[10px] select-none leading-none mt-0.5 ${isMe ? "text-blue-200" : "text-gray-400"}`}>
+                                    <span className={`block text-right text-[10px] select-none leading-none mt-0.5 ${isMe ? "text-blue-400" : "text-gray-400"}`}>
                                         {formatMessageTime(m._creationTime)}
                                     </span>
                                 </>
+                            ) : m.fileUrl && m.fileType === "image" ? (
+                                <div className="relative">
+                                    <button onClick={() => onOpenLightbox(m.fileUrl, m.senderName, false)} className="block rounded-xl overflow-hidden">
+                                        <img src={m.fileUrl} alt="Photo" className="max-w-[260px] max-h-[340px] w-full rounded-xl object-cover hover:opacity-95 transition-opacity" />
+                                    </button>
+                                    {m.content && <p className="mt-1.5 text-[13.5px] leading-snug">{m.content}</p>}
+                                    <span className={`block text-right text-[10px] select-none leading-none mt-1 ${isMe ? "text-blue-200" : "text-gray-400"}`}>
+                                        {formatMessageTime(m._creationTime)}
+                                    </span>
+                                </div>
+                            ) : m.fileUrl && m.fileType === "video" ? (
+                                <div className="relative">
+                                    <video src={m.fileUrl} controls className="max-w-[280px] rounded-xl" style={{ maxHeight: 340 }} />
+                                    {m.content && <p className="mt-1.5 text-[13.5px] leading-snug">{m.content}</p>}
+                                    <span className={`block text-right text-[10px] select-none leading-none mt-1 ${isMe ? "text-blue-200" : "text-gray-400"}`}>
+                                        {formatMessageTime(m._creationTime)}
+                                    </span>
+                                </div>
                             ) : (
                                 <span className="flex flex-wrap items-end gap-x-2">
                                     <span className="whitespace-pre-wrap leading-snug">{m.content}</span>
-                                    <span className={`text-[10px] select-none leading-none ml-auto mt-0.5 flex-shrink-0 self-end ${isMe ? "text-blue-200" : "text-gray-400"}`}>
+                                    <span className={`text-[10px] select-none leading-none ml-auto mt-0.5 flex-shrink-0 self-end ${isMe ? "text-blue-400" : "text-gray-400"}`}>
                                         {formatMessageTime(m._creationTime)}
                                     </span>
                                 </span>
@@ -160,7 +208,7 @@ export default function MessageBubble({
                             {/* Bubble tail */}
                             {!isSameAsPrev && (
                                 <span
-                                    className={`absolute bottom-0 ${isMe ? "-right-1.5 text-blue-600" : "-left-1.5 text-white"}`}
+                                    className={`absolute bottom-0 ${isMe ? "-right-1.5 text-blue-300" : "-left-1.5 text-white"}`}
                                     style={{ fontSize: 0, lineHeight: 0 }}
                                 >
                                     {isMe
@@ -173,29 +221,20 @@ export default function MessageBubble({
                             {/* Hover chevron + dropdown */}
                             {!m.isDeleted && !isSelecting && (
                                 <div className="absolute top-0 right-0">
-                                    <div className={`absolute top-0 right-0 w-14 h-10 rounded-tr-2xl pointer-events-none opacity-0 group-hover/msg:opacity-100 transition-opacity duration-150 ${isMe ? "bg-gradient-to-bl from-blue-600/70 to-transparent" : "bg-gradient-to-bl from-white/90 to-transparent"}`} />
+                                    <div className={`absolute top-0 right-0 w-14 h-10 rounded-tr-2xl pointer-events-none opacity-0 group-hover/msg:opacity-100 transition-opacity duration-150 ${isMe ? "bg-gradient-to-bl from-blue-100/90 to-transparent" : "bg-gradient-to-bl from-white/90 to-transparent"}`} />
                                     <button
                                         onClick={e => { e.stopPropagation(); onSetDropdown(openDropdownId === m._id ? null : m._id); }}
-                                        className={`relative z-10 p-2 opacity-0 group-hover/msg:opacity-100 transition-opacity rounded-sm ${isMe ? "text-blue-100 hover:text-white" : "text-gray-400 hover:text-gray-700"}`}
+                                        className={`relative z-10 p-2 opacity-0 group-hover/msg:opacity-100 transition-opacity rounded-sm ${isMe ? "text-blue-400 hover:text-blue-700" : "text-gray-400 hover:text-gray-700"}`}
                                     >
                                         <ChevronDown className="w-4 h-4" />
                                     </button>
                                     {openDropdownId === m._id && (
-                                        <div
-                                            className="absolute top-5 z-50 bg-white rounded-xl shadow-2xl border border-gray-100 py-1 min-w-[120px] right-0"
-                                            onClick={e => e.stopPropagation()}
-                                        >
-                                            <button
-                                                onClick={() => { onReply(m); onSetDropdown(null); }}
-                                                className="w-full flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                                            >
+                                        <div className="absolute top-5 z-50 bg-white rounded-xl shadow-2xl border border-gray-100 py-1 min-w-[120px] right-0" onClick={e => e.stopPropagation()}>
+                                            <button onClick={() => { onReply(m); onSetDropdown(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-gray-700 hover:bg-gray-50 transition-colors">
                                                 <CornerUpLeft className="w-3.5 h-3.5 text-blue-500" /> Reply
                                             </button>
                                             {isMe && (
-                                                <button
-                                                    onClick={() => { onDelete(m._id); onSetDropdown(null); }}
-                                                    className="w-full flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-red-600 hover:bg-red-50 transition-colors"
-                                                >
+                                                <button onClick={() => { onDelete(m._id); onSetDropdown(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-red-600 hover:bg-red-50 transition-colors">
                                                     <Trash2 className="w-3.5 h-3.5" /> Delete
                                                 </button>
                                             )}
@@ -205,27 +244,78 @@ export default function MessageBubble({
                             )}
                         </div>
 
-                        {/* Reactions */}
-                        {m.reactions && m.reactions.length > 0 && (
-                            <div className={`flex flex-wrap gap-1 mt-1 ${isMe ? "justify-end" : "justify-start"}`}>
-                                {m.reactions.map((r: any) => (
-                                    <button
-                                        key={r.emoji}
-                                        onClick={() => onReact(m._id, r.emoji)}
-                                        className={`flex items-center gap-0.5 text-[12px] px-2 py-0.5 rounded-full border transition-all ${r.hasReacted ? "bg-blue-50 border-blue-300 text-blue-700 font-semibold" : "bg-white border-gray-200 text-gray-600 hover:border-blue-200"}`}
+                        {/* ── Condensed reactions pill ── */}
+                        {reactions.length > 0 && (
+                            <div className="relative mt-0.5 mb-1 self-start">
+                                <button
+                                    onClick={e => { e.stopPropagation(); setReactionPopupOpen(true); }}
+                                    className="flex items-center gap-1 bg-white border border-gray-200 rounded-full px-2 py-0.5 shadow-sm hover:border-blue-300 transition-colors"
+                                >
+                                    {visibleReactions.map((r: any) => (
+                                        <span key={r.emoji} className="text-[13px] leading-none">{r.emoji}</span>
+                                    ))}
+                                    {hiddenCount > 0 && (
+                                        <span className="text-[10px] font-semibold text-gray-500 ml-0.5">+{hiddenCount}</span>
+                                    )}
+                                    {totalReactionCount > 1 && (
+                                        <span className="text-[10px] font-medium text-gray-400 ml-0.5">{totalReactionCount}</span>
+                                    )}
+                                </button>
+
+                                {/* Reaction detail popup */}
+                                {reactionPopupOpen && (
+                                    <div
+                                        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30"
+                                        onClick={() => setReactionPopupOpen(false)}
                                     >
-                                        <span>{r.emoji}</span>
-                                        <span className="text-[10px] font-medium">{r.count}</span>
-                                    </button>
-                                ))}
+                                        <div
+                                            className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-72 max-h-[420px] flex flex-col overflow-hidden"
+                                            onClick={e => e.stopPropagation()}
+                                        >
+                                            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                                                <span className="font-semibold text-[14px] text-gray-700">Reactions</span>
+                                                <button onClick={() => setReactionPopupOpen(false)} className="p-1 rounded-full hover:bg-gray-100 transition-colors text-gray-400">
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            <div className="overflow-y-auto flex-1 divide-y divide-gray-50">
+                                                {reactions.map((r: any) => (
+                                                    <div key={r.emoji} className="px-4 py-3 flex items-start gap-4">
+                                                        <div className="flex flex-col items-center justify-center bg-gray-50 rounded-lg px-2 py-1.5 min-w-[48px]">
+                                                            <span className="text-xl leading-none mb-1">{r.emoji}</span>
+                                                            <span className="text-[11px] font-bold text-gray-500">{r.count}</span>
+                                                        </div>
+                                                        <div className="flex flex-col gap-2 flex-1 pt-0.5 items-end justify-center">
+                                                            {(r.users ?? []).length === 0 ? (
+                                                                <span className="text-[12px] text-gray-400 italic">Unknown</span>
+                                                            ) : (r.users ?? []).map((u: any, i: number) => (
+                                                                <div key={i} className="flex items-center gap-2">
+                                                                    {u.image
+                                                                        ? <img src={u.image} alt={u.isMe ? "You" : u.name} className="w-7 h-7 rounded-full object-cover border border-gray-200" />
+                                                                        : <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-100 to-violet-100 flex items-center justify-center text-indigo-700 text-[10px] font-bold flex-shrink-0">
+                                                                            {(u.isMe ? "Y" : u.name?.charAt(0)) ?? "?"}
+                                                                        </div>
+                                                                    }
+                                                                    <span className="text-[13px] text-gray-700 font-medium">
+                                                                        {u.isMe ? "You" : u.name}
+                                                                    </span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
 
                     {/* Floating emoji picker (desktop hover) */}
                     {!m.isDeleted && !isSelecting && (
-                        <div className="flex items-center self-center flex-shrink-0 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-150">
-                            <div className="relative group/react hidden sm:block">
+                        <div className="flex items-end self-stretch flex-shrink-0 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-150 pb-1">
+                            <div className="relative group/react hidden sm:block h-full flex items-end">
                                 <button className="p-1.5 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-yellow-500 hover:border-yellow-300 shadow-sm transition-all">
                                     <Smile className="w-3.5 h-3.5" />
                                 </button>

@@ -33,14 +33,18 @@ export default defineSchema({
         isDeleted: v.optional(v.boolean()),
         readBy: v.optional(v.array(v.id("users"))),
         replyToId: v.optional(v.id("messages")),
+        fileId: v.optional(v.id("_storage")),
+        fileType: v.optional(v.string()),  // "image" | "video"
     }).index("by_conversationId", ["conversationId"]),
+
 
     reactions: defineTable({
         messageId: v.id("messages"),
         userId: v.id("users"),
         emoji: v.string(),
-    }).index("by_messageId", ["messageId"])
-        .index("by_messageId_userId_emoji", ["messageId", "userId", "emoji"]),
+    })
+        .index("by_messageId", ["messageId"])
+        .index("by_messageId_userId", ["messageId", "userId"]),
 
     typingIndicators: defineTable({
         conversationId: v.id("conversations"),

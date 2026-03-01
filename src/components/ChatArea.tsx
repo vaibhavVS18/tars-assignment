@@ -35,7 +35,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
     const [sendError, setSendError] = useState<string | null>(null);
     const [showMembersPanel, setShowMembersPanel] = useState(false);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-    const [lightbox, setLightbox] = useState<{ src: string; name: string } | null>(null);
+    const [lightbox, setLightbox] = useState<{ src: string; name: string; isAvatar: boolean } | null>(null);
     const [adminError, setAdminError] = useState<string | null>(null);
 
     // ── Reply state ──
@@ -155,7 +155,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
         typingTimeoutRef.current = setTimeout(() => setTyping({ conversationId, isTyping: false }), 2000);
     };
 
-    // ── Send ──
+    // ── Send text ──
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newMessage.trim()) return;
@@ -174,6 +174,12 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
             setNewMessage(msg);
             setReplyingTo(reply);
         }
+    };
+
+    // ── Send media (image/video) ──
+    const handleSendMedia = async (fileId: Id<"_storage">, fileType: string) => {
+        await sendMessage({ conversationId, content: "", fileId, fileType });
+        scrollToBottom();
     };
 
     // ── Delete single ──
@@ -211,7 +217,13 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
     const startReply = useCallback((msg: any) => {
         setCtxMenu(null);
         setSelectedIds(new Set());
-        setReplyingTo({ id: msg._id, content: msg.isDeleted ? "This message was deleted" : msg.content, senderName: msg.senderName });
+        const content = msg.isDeleted
+            ? "This message was deleted"
+            : msg.fileType === "image" ? "📷 Photo"
+                : msg.fileType === "video" ? "🎥 Video"
+                    : msg.content;
+        setReplyingTo({ id: msg._id, content, senderName: msg.senderName });
+
         requestAnimationFrame(() => inputRef.current?.focus());
     }, []);
 
@@ -311,7 +323,8 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
     return (
         <div className="flex flex-col h-full w-full overflow-hidden bg-slate-50">
             {/* Avatar lightbox */}
-            {lightbox && <AvatarLightbox src={lightbox.src} name={lightbox.name} onClose={() => setLightbox(null)} />}
+            {lightbox && <AvatarLightbox src={lightbox.src} name={lightbox.name} isAvatar={lightbox.isAvatar} onClose={() => setLightbox(null)} />}
+
 
             {/* Right-click context menu */}
             {ctxMenu && (
@@ -337,7 +350,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
                 groupMembers={groupMembers}
                 conversationImage={conversationImage}
                 onToggleMembersPanel={() => setShowMembersPanel(p => !p)}
-                onOpenLightbox={(src, name) => setLightbox({ src, name })}
+                onOpenLightbox={(src, name) => setLightbox({ src, name, isAvatar: true })}
             />
 
             {/* Group members panel */}
@@ -355,7 +368,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
                     onPromote={handlePromote}
                     onDemote={handleDemote}
                     onClearError={() => setAdminError(null)}
-                    onOpenLightbox={(src, name) => setLightbox({ src, name })}
+                    onOpenLightbox={(src, name) => setLightbox({ src, name, isAvatar: true })}
                 />
             )}
 
@@ -396,7 +409,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
                                     onSelect={toggleSelect}
                                     onSetDropdown={setOpenDropdownId}
                                     onContextMenu={handleContextMenu}
-                                    onOpenLightbox={(src, name) => setLightbox({ src, name })}
+                                    onOpenLightbox={(src, name, isAvatar = true) => setLightbox({ src, name, isAvatar })}
                                     onTouchStart={handleTouchStart}
                                     onTouchMove={handleTouchMove}
                                     onTouchEnd={handleTouchEnd}
@@ -428,6 +441,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
 
             {/* Bottom input area */}
             <MessageInput
+                conversationId={conversationId}
                 newMessage={newMessage}
                 replyingTo={replyingTo}
                 showEmojiPicker={showEmojiPicker}
@@ -438,6 +452,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
                 onInsertEmoji={emoji => { setNewMessage(prev => prev + emoji); inputRef.current?.focus(); }}
                 onCancelReply={() => setReplyingTo(null)}
                 onInputFocus={() => setShowEmojiPicker(false)}
+                onSendMedia={handleSendMedia}
             />
         </div>
     );
