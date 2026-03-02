@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronDown, CornerUpLeft, Smile, Trash2, X } from "lucide-react";
+import { Check, ChevronDown, CornerUpLeft, MousePointer2, Smile, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { Id } from "../../../convex/_generated/dataModel";
 import { REACTION_EMOJIS, formatMessageTime } from "./utils";
@@ -64,7 +64,8 @@ export default function MessageBubble({
 
             {/* ── Message row ── */}
             <div
-                className={`flex items-end gap-2 w-full ${isSameAsPrev ? "mt-1" : "mt-3"} ${isSameAsNext ? "mb-1" : "mb-3"} ${isMe ? "flex-row-reverse" : "flex-row"} ${isSelected ? (isMe ? "bg-blue-50/60 dark:bg-blue-900/30" : "bg-gray-100/60 dark:bg-gray-800/60") : ""} rounded-xl transition-colors`}
+                className={`flex items-end gap-2 w-full ${isSameAsPrev ? "mt-1" : "mt-3"} ${isSameAsNext ? "mb-1" : "mb-3"} ${isMe ? "flex-row-reverse" : "flex-row"} ${isSelected ? (isMe ? "bg-blue-200/80 dark:bg-blue-900/30" : "bg-indigo-100/80 dark:bg-gray-800/60") : ""} rounded-xl transition-colors ${isSelecting ? "cursor-pointer hover:bg-black/5 dark:hover:bg-white/5" : ""}`}
+                onClick={() => { if (isSelecting) onSelect(m._id); }}
                 onContextMenu={e => onContextMenu(e, m)}
                 onTouchStart={e => onTouchStart(e, m)}
                 onTouchMove={e => {
@@ -236,6 +237,9 @@ export default function MessageBubble({
                                         <div className="absolute top-5 z-50 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 py-1 min-w-[120px] right-0" onClick={e => e.stopPropagation()}>
                                             <button onClick={() => { onReply(m); onSetDropdown(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                                                 <CornerUpLeft className="w-3.5 h-3.5 text-blue-500" /> Reply
+                                            </button>
+                                            <button onClick={() => { onSelect(m._id); onSetDropdown(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                                <MousePointer2 className="w-3.5 h-3.5 text-indigo-500" /> Select
                                             </button>
                                             {isMe && (
                                                 <button onClick={() => { onDelete(m._id); onSetDropdown(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">

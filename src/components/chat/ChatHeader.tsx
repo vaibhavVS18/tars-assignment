@@ -33,7 +33,7 @@ export default function ChatHeader({
                 <span className="flex-1 text-white font-bold text-sm">{selectedCount} selected</span>
                 <button
                     onClick={onBulkDelete}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white text-xs font-bold transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white text-xs font-bold transition-colors mr-14 sm:mr-16"
                 >
                     <Trash2 className="w-4 h-4" /> Delete
                 </button>

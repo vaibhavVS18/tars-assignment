@@ -251,9 +251,10 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
         if (Math.abs(dx) > 10 || dy > 10) {
             if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
         }
-        if (!isSelecting && dx > 0 && dy < 40) {
+        if (!isSelecting && Math.abs(dx) > 0 && dy < 40) {
             swipeMsgRef.current = { id: msg._id, el };
-            const clamp = Math.min(dx, 80);
+            // Swipe right (positive dx) or left (negative dx), clamp to 80px limit
+            const clamp = dx > 0 ? Math.min(dx, 80) : Math.max(dx, -80);
             el.style.transform = `translateX(${clamp}px)`;
             el.style.transition = "none";
         }
@@ -268,7 +269,8 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
             swipeMsgRef.current.el.style.transform = "";
             swipeMsgRef.current.el.style.transition = "transform 0.2s ease";
         }
-        if (!isSelecting && dx >= 60 && dy < 40 && !msg.isDeleted) startReply(msg);
+        // Trigger if swiped far enough left or right
+        if (!isSelecting && Math.abs(dx) >= 60 && dy < 40 && !msg.isDeleted) startReply(msg);
         swipeMsgRef.current = null;
     };
 
@@ -333,6 +335,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
                     onReply={startReply}
                     onReact={handleToggleReaction}
                     onDelete={handleDelete}
+                    onSelect={(id) => { toggleSelect(id); setCtxMenu(null); }}
                 />
             )}
 
