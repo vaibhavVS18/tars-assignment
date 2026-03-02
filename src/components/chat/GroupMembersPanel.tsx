@@ -44,7 +44,7 @@ export default function GroupMembersPanel({
     };
 
     return (
-        <div className="flex-shrink-0 bg-white border-b border-gray-100 shadow-sm">
+        <div className="flex-shrink-0 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors">
             <div className="px-4 py-3">
                 {/* Header row */}
                 <div className="flex items-center justify-between mb-3">
@@ -62,13 +62,13 @@ export default function GroupMembersPanel({
                                 </button>
                                 <button
                                     onClick={() => { setIsRenaming(p => !p); setRenameValue(conversationName); onClearError(); }}
-                                    className="flex items-center gap-1 text-[11px] text-purple-600 hover:text-purple-800 font-semibold px-2 py-1 rounded-lg hover:bg-purple-50"
+                                    className="flex items-center gap-1 text-[11px] text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-semibold px-2 py-1 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-colors"
                                 >
                                     <Edit2 className="w-3.5 h-3.5" /> Rename
                                 </button>
                             </>
                         )}
-                        <button onClick={onClose} className="text-[10px] text-gray-400 hover:text-gray-600">
+                        <button onClick={onClose} className="text-[10px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                             Hide
                         </button>
                     </div>
@@ -120,7 +120,7 @@ export default function GroupMembersPanel({
                                             ? <img src={u.image} alt={u.name} className="w-6 h-6 rounded-full object-cover" />
                                             : <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-[10px] font-bold">{u.name?.charAt(0)}</div>
                                         }
-                                        <span className="text-xs font-medium text-gray-800 flex-1 truncate">{u.name}</span>
+                                        <span className="text-xs font-medium text-gray-800 dark:text-gray-200 flex-1 truncate">{u.name}</span>
                                         <UserPlus className="w-3.5 h-3.5 text-blue-400" />
                                     </button>
                                 ))}
@@ -132,7 +132,7 @@ export default function GroupMembersPanel({
                 {/* Member list */}
                 <div className="max-h-48 overflow-y-auto space-y-1">
                     {detailedMembers.map((m) => (
-                        <div key={m._id} className="flex items-center gap-2 px-1 py-1 rounded-lg group/member hover:bg-gray-50">
+                        <div key={m._id} className="flex items-center gap-2 px-1 py-1 rounded-lg group/member hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                             <div className="relative flex-shrink-0">
                                 {m.image ? (
                                     <button onClick={() => onOpenLightbox(m.image!, m.name ?? "")} className="rounded-full">
@@ -148,7 +148,7 @@ export default function GroupMembersPanel({
 
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5">
-                                    <span className="text-xs font-semibold text-gray-800 truncate">{m.name}</span>
+                                    <span className="text-xs font-semibold text-gray-800 dark:text-gray-100 truncate">{m.name}</span>
                                     {m.isAdmin && (
                                         <span className="flex items-center gap-0.5 text-[9px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">
                                             <Crown className="w-2.5 h-2.5" /> Admin
@@ -180,6 +180,6 @@ export default function GroupMembersPanel({
                     ))}
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

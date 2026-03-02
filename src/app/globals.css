@@ -1,1 +1,17 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Chat message area background */
+.chat-bg-area {
+    background-color: #ece5dd;
+    background-image: url('/chat_bg_light.png');
+    background-repeat: repeat;
+    background-size: 512px 512px;
+}
+
+.dark .chat-bg-area {
+    background-color: #0b141a;
+    background-image: url('/chat_bg_dark.png');
+    background-repeat: repeat;
+    background-size: 512px 512px;
+}

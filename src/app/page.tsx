@@ -4,6 +4,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import ChatArea from "@/components/ChatArea";
+import BubbleBackground from "@/components/BubbleBackground";
 import { Id } from "../../convex/_generated/dataModel";
 
 const SIDEBAR_MIN = 240;
@@ -84,9 +85,9 @@ export default function Home() {
 
   if (!isLoaded || !userId) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-gray-50">
+      <div className="flex h-screen w-full items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="animate-pulse flex flex-col items-center">
-          <div className="h-12 w-12 bg-gray-200 rounded-full mb-4"></div>
+          <div className="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded-full mb-4"></div>
           <div className="h-4 w-32 bg-gray-200 rounded"></div>
         </div>
       </div>
@@ -96,7 +97,7 @@ export default function Home() {
   // ── Mobile: full-screen sidebar ↔ full-screen chat ──
   if (!isDesktop) {
     return (
-      <div className="flex flex-col h-screen w-full bg-white overflow-hidden text-gray-900 font-sans">
+      <div className="flex flex-col h-screen w-full bg-white dark:bg-gray-950 overflow-hidden text-gray-900 dark:text-gray-100 font-sans">
         {selectedConversationId ? (
           <ChatArea
             conversationId={selectedConversationId}
@@ -116,10 +117,10 @@ export default function Home() {
 
   // ── Desktop: resizable split view ──
   return (
-    <div className="flex h-screen w-full bg-white overflow-hidden text-gray-900 font-sans">
+    <div className="flex h-screen w-full bg-white dark:bg-gray-950 overflow-hidden text-gray-900 dark:text-gray-100 font-sans">
       {/* Sidebar */}
       <div
-        className="flex-shrink-0 border-r border-gray-100 flex flex-col"
+        className="flex-shrink-0 border-r border-gray-100 dark:border-gray-800 flex flex-col"
         style={{ width: sidebarWidth }}
       >
         <Sidebar
@@ -138,21 +139,24 @@ export default function Home() {
       </div>
 
       {/* Chat area */}
-      <div className="flex-1 flex flex-col h-full bg-slate-50 relative min-w-0">
+      <div className="flex-1 flex flex-col h-full bg-slate-50 dark:bg-[#0b141a] relative min-w-0">
         {selectedConversationId ? (
           <ChatArea
             conversationId={selectedConversationId}
             onBack={() => setSelectedConversationId(null)}
           />
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
-            <div className="w-24 h-24 mb-6 rounded-full bg-gray-100 flex items-center justify-center">
-              <svg className="w-12 h-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
+          <div className="flex-1 flex flex-col items-center justify-center relative overflow-hidden">
+            <BubbleBackground />
+            <div className="relative z-10 flex flex-col items-center text-center px-6">
+              <div className="w-24 h-24 mb-6 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur-sm shadow-xl flex items-center justify-center border border-white/40 dark:border-white/10">
+                <svg className="w-12 h-12 text-indigo-400 dark:text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold tracking-tight text-gray-700 dark:text-gray-200">Your Messages</h2>
+              <p className="mt-2 text-sm max-w-xs text-gray-500 dark:text-gray-400">Select a conversation from the sidebar or start a new one to begin chatting.</p>
             </div>
-            <h2 className="text-xl font-medium tracking-tight text-gray-600">Your Messages</h2>
-            <p className="mt-2 text-sm max-w-sm text-center">Select a conversation from the sidebar or start a new one to begin chatting.</p>
           </div>
         )}
       </div>

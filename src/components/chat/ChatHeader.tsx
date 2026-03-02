@@ -43,10 +43,10 @@ export default function ChatHeader({
 
     // Normal header 
     return (
-        <div className="px-4 py-3 bg-white border-b border-gray-100 flex items-center shadow-sm z-10 flex-shrink-0 min-h-[64px]">
+        <div className="px-4 py-3 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800 flex items-center shadow-sm z-10 flex-shrink-0 min-h-[64px] transition-colors">
             <button
                 onClick={onBack}
-                className="mr-2 p-1.5 md:hidden text-gray-500 hover:bg-gray-100 rounded-full transition-colors"
+                className="mr-2 p-1.5 md:hidden text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
             >
                 <ArrowLeft className="w-5 h-5" />
             </button>
@@ -78,7 +78,7 @@ export default function ChatHeader({
                 <div className="min-w-0 flex-1">
                     <button
                         onClick={() => isGroup && onToggleMembersPanel()}
-                        className={`text-sm font-bold text-gray-800 truncate leading-tight block max-w-full text-left ${isGroup ? "hover:text-blue-600 cursor-pointer" : "cursor-default"}`}
+                        className={`text-sm font-bold text-gray-800 dark:text-gray-100 truncate leading-tight block max-w-full text-left ${isGroup ? "hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer" : "cursor-default"}`}
                     >
                         {conversationName}
                     </button>
@@ -90,7 +90,7 @@ export default function ChatHeader({
                     ) : isGroup ? (
                         <button
                             onClick={onToggleMembersPanel}
-                            className="text-xs text-gray-400 hover:text-blue-500 text-left truncate block max-w-full transition-colors"
+                            className="text-xs text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 text-left truncate block max-w-full transition-colors"
                         >
                             {groupMembers.length > 0
                                 ? `${groupMembers.length} members · ${groupMembers.filter((m: any) => m.isOnline).length} online`
@@ -103,25 +103,7 @@ export default function ChatHeader({
                     )}
                 </div>
 
-                {/* Stacked group avatars */}
-                {isGroup && groupMembers.length > 0 && (
-                    <div className="flex-shrink-0 flex items-center -space-x-2">
-                        {groupMembers.slice(0, 4).map((m: any) => (
-                            <div key={m._id} className="relative" title={m.name}>
-                                {m.image
-                                    ? <img src={m.image} alt={m.name} className="w-6 h-6 rounded-full border-2 border-white object-cover shadow-sm" />
-                                    : <div className="w-6 h-6 rounded-full border-2 border-white bg-indigo-100 flex items-center justify-center text-[9px] font-bold text-indigo-700">{m.name?.charAt(0)}</div>
-                                }
-                                {m.isOnline && <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-green-500 border border-white rounded-full" />}
-                            </div>
-                        ))}
-                        {groupMembers.length > 4 && (
-                            <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-[9px] font-bold text-gray-600">
-                                +{groupMembers.length - 4}
-                            </div>
-                        )}
-                    </div>
-                )}
+
             </div>
         </div>
     );

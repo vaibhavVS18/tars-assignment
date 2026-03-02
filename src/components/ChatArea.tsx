@@ -298,7 +298,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
     if (messages === undefined) {
         return (
             <div className="flex-1 flex flex-col h-full">
-                <div className="h-16 px-4 bg-white border-b border-gray-100 flex items-center gap-3">
+                <div className="h-16 px-4 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
                     <button onClick={onBack} className="p-1.5 md:hidden text-gray-500 hover:bg-gray-100 rounded-full">
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -312,7 +312,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
                         </div>
                     </div>
                 </div>
-                <div className="flex-1 flex items-center justify-center bg-slate-50">
+                <div className="flex-1 flex items-center justify-center bg-slate-50 dark:bg-gray-900">
                     <Loader2 className="w-7 h-7 animate-spin text-blue-400" />
                 </div>
             </div>
@@ -321,7 +321,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
 
     // ── Render ──
     return (
-        <div className="flex flex-col h-full w-full overflow-hidden bg-slate-50">
+        <div className="flex flex-col h-full w-full overflow-hidden bg-slate-50 dark:bg-gray-900">
             {/* Avatar lightbox */}
             {lightbox && <AvatarLightbox src={lightbox.src} name={lightbox.name} isAvatar={lightbox.isAvatar} onClose={() => setLightbox(null)} />}
 
@@ -376,15 +376,15 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
             <div
                 ref={scrollContainerRef}
                 onScroll={handleScroll}
-                className="flex-1 overflow-y-auto w-full px-4 sm:px-6 py-5 bg-slate-50"
+                className="flex-1 overflow-y-auto w-full px-4 sm:px-6 py-5 chat-bg-area"
             >
                 {messages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-gray-400 select-none">
-                        <div className="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 border border-gray-100">
-                            <MessageCircle className="w-8 h-8 text-blue-200" />
+                        <div className="w-16 h-16 bg-white dark:bg-gray-800 rounded-full shadow-sm flex items-center justify-center mb-4 border border-gray-100 dark:border-gray-700">
+                            <MessageCircle className="w-8 h-8 text-blue-200 dark:text-blue-900" />
                         </div>
-                        <p className="text-sm font-semibold text-gray-500">No messages yet</p>
-                        <p className="text-xs mt-1 text-gray-400">Send the first message below!</p>
+                        <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">No messages yet</p>
+                        <p className="text-xs mt-1 text-gray-400 dark:text-gray-500">Send the first message below!</p>
                     </div>
                 ) : (
                     <div className="space-y-0 max-w-3xl mx-auto w-full pb-2">
@@ -425,7 +425,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
             {showScrollButton && (
                 <button
                     onClick={() => scrollToBottom()}
-                    className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-sm text-blue-600 shadow-lg border border-gray-100 rounded-full py-1.5 px-5 text-xs font-bold flex items-center gap-1.5 hover:bg-gray-50 transition-all z-20"
+                    className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm text-blue-600 dark:text-blue-400 shadow-lg border border-gray-100 dark:border-gray-700 rounded-full py-1.5 px-5 text-xs font-bold flex items-center gap-1.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all z-20"
                 >
                     ↓ New messages
                 </button>
@@ -433,9 +433,9 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
 
             {/* Error banner */}
             {sendError && (
-                <div className="px-4 py-2 bg-red-50 border-t border-red-100 flex items-center justify-between">
-                    <p className="text-xs text-red-600">{sendError}</p>
-                    <button onClick={() => setSendError(null)} className="text-xs text-red-500 font-medium underline">Dismiss</button>
+                <div className="px-4 py-2 bg-red-50 dark:bg-red-900/30 border-t border-red-100 dark:border-red-900/50 flex items-center justify-between">
+                    <p className="text-xs text-red-600 dark:text-red-400">{sendError}</p>
+                    <button onClick={() => setSendError(null)} className="text-xs text-red-500 dark:text-red-400 font-medium underline">Dismiss</button>
                 </div>
             )}
 

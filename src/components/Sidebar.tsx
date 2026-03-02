@@ -80,37 +80,37 @@ export default function Sidebar({
     };
 
     return (
-        <div className="flex flex-col h-full bg-white w-full">
+        <div className="flex flex-col h-full bg-white dark:bg-gray-950 w-full transition-colors">
             {/* Avatar Lightbox */}
             {lightbox && (
                 <AvatarLightbox src={lightbox.src} name={lightbox.name} onClose={() => setLightbox(null)} />
             )}
 
             {/* Header */}
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-2">
+            <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-3 min-w-0">
                     <UserButton afterSignOutUrl="/sign-in" appearance={{ elements: { avatarBox: "w-9 h-9" } }} />
                     <div className="min-w-0">
-                        <h2 className="text-sm font-bold text-gray-800 truncate">{user?.fullName ?? user?.firstName ?? 'User'}</h2>
+                        <h2 className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">{user?.fullName ?? user?.firstName ?? 'User'}</h2>
                         <p className="text-xs text-green-500 font-medium">Online</p>
                     </div>
                 </div>
                 <button
                     onClick={() => setShowGroupModal(true)}
                     title="Create group chat"
-                    className="flex-shrink-0 p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors cursor-pointer"
+                    className="flex-shrink-0 p-2 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors cursor-pointer"
                 >
                     <Plus className="w-4 h-4" />
                 </button>
             </div>
 
             {/* Search */}
-            <div className="px-3 py-2.5 border-b border-gray-50">
+            <div className="px-3 py-2.5 border-b border-gray-50 dark:border-gray-800/60">
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                     <input
                         type="text"
-                        className="block w-full pl-9 pr-3 py-2 border border-gray-200 rounded-full bg-gray-50 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                        className="block w-full pl-9 pr-3 py-2 border border-gray-200 dark:border-gray-800 rounded-full bg-gray-50 dark:bg-gray-900/50 text-sm placeholder-gray-400 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
                         placeholder="Search..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -124,12 +124,12 @@ export default function Sidebar({
             </div>
 
             {/* Tabs */}
-            <div className="flex border-b border-gray-100 px-2 pt-1">
+            <div className="flex border-b border-gray-100 dark:border-gray-800 px-2 pt-1">
                 {(['chats', 'people'] as const).map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`flex-1 py-2 text-xs font-semibold rounded-t-lg capitalize transition-colors cursor-pointer ${activeTab === tab ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`flex-1 py-2 text-xs font-semibold rounded-t-lg capitalize transition-colors cursor-pointer ${activeTab === tab ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
                     >
                         {tab === 'chats' ? <><MessageCircle className="w-3.5 h-3.5 inline mr-1.5" />Chats</> : <><Users className="w-3.5 h-3.5 inline mr-1.5" />People</>}
                     </button>
@@ -144,23 +144,23 @@ export default function Sidebar({
                         <div className="space-y-2 p-3">
                             {[1, 2, 3].map(i => (
                                 <div key={i} className="animate-pulse flex items-center p-2 gap-3">
-                                    <div className="w-12 h-12 bg-gray-200 rounded-full flex-shrink-0" />
+                                    <div className="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-full flex-shrink-0" />
                                     <div className="flex-1 space-y-2">
-                                        <div className="h-3 bg-gray-200 rounded w-28" />
-                                        <div className="h-2.5 bg-gray-100 rounded w-full" />
+                                        <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-28" />
+                                        <div className="h-2.5 bg-gray-100 dark:bg-gray-800 rounded w-full" />
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : filteredConversations.length === 0 ? (
                         <div className="py-12 text-center px-6">
-                            <div className="mx-auto w-14 h-14 bg-gray-50 rounded-full flex items-center justify-center mb-3">
-                                <MessageCircle className="w-7 h-7 text-gray-300" />
+                            <div className="mx-auto w-14 h-14 bg-gray-50 dark:bg-gray-900 rounded-full flex items-center justify-center mb-3">
+                                <MessageCircle className="w-7 h-7 text-gray-300 dark:text-gray-600" />
                             </div>
-                            <p className="text-sm font-semibold text-gray-500">
+                            <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
                                 {searchTerm ? "No conversations found" : "No conversations yet"}
                             </p>
-                            <p className="text-xs text-gray-400 mt-1">
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                                 {searchTerm ? "Try a different name" : "Go to People tab to start chatting."}
                             </p>
                         </div>
@@ -178,7 +178,7 @@ export default function Sidebar({
                                     <button
                                         key={c._id}
                                         onClick={() => onSelectConversation(c._id)}
-                                        className={`w-full text-left flex items-start p-2.5 rounded-xl transition-all cursor-pointer ${isActive ? "bg-blue-50 ring-1 ring-blue-100" : "hover:bg-gray-50"}`}
+                                        className={`w-full text-left flex items-start p-2.5 rounded-xl transition-all cursor-pointer ${isActive ? "bg-blue-50 dark:bg-blue-900/40 ring-1 ring-blue-100 dark:ring-blue-900/50" : "hover:bg-gray-50 dark:hover:bg-gray-800/50"}`}
                                     >
                                         <div className="relative flex-shrink-0 mt-0.5">
                                             {displayImage ? (
@@ -193,7 +193,7 @@ export default function Sidebar({
                                                     <img src={displayImage} alt={displayName} className="w-12 h-12 rounded-full object-cover shadow-sm border border-gray-100 hover:opacity-90 transition-opacity" />
                                                 </div>
                                             ) : (
-                                                <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm shadow-sm border ${c.isGroup ? 'bg-gradient-to-br from-purple-100 to-pink-100 text-purple-700 border-purple-50' : 'bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 border-blue-50'}`}>
+                                                <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm shadow-sm border ${c.isGroup ? 'bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 text-purple-700 dark:text-purple-300 border-purple-50 dark:border-purple-800/30' : 'bg-gradient-to-br from-blue-100 to-blue-200 dark:from-indigo-900/50 dark:to-blue-900/50 text-blue-700 dark:text-blue-300 border-blue-50 dark:border-blue-800/30'}`}>
                                                     {c.isGroup ? <Users className="w-5 h-5" /> : (displayName?.charAt(0) ?? "U")}
                                                 </div>
                                             )}
@@ -203,17 +203,17 @@ export default function Sidebar({
                                         </div>
                                         <div className="ml-3 flex-1 min-w-0">
                                             <div className="flex justify-between items-baseline mb-0.5">
-                                                <p className={`text-sm truncate pr-1 ${hasUnread ? "font-bold text-gray-900" : "font-semibold text-gray-800"}`}>{displayName}</p>
+                                                <p className={`text-sm truncate pr-1 ${hasUnread ? "font-bold text-gray-900 dark:text-white" : "font-semibold text-gray-800 dark:text-gray-100"}`}>{displayName}</p>
                                                 {c.lastMessage && (
-                                                    <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap ml-1">
+                                                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium whitespace-nowrap ml-1">
                                                         {formatTime(c.lastMessage._creationTime)}
                                                     </span>
                                                 )}
                                             </div>
                                             <div className="flex justify-between items-center">
-                                                <p className={`text-xs truncate flex-1 pr-1 ${hasUnread ? "text-gray-700 font-medium" : "text-gray-500"}`}>
+                                                <p className={`text-xs truncate flex-1 pr-1 ${hasUnread ? "text-gray-700 dark:text-gray-300 font-medium" : "text-gray-500 dark:text-gray-400"}`}>
                                                     {c.lastMessage ? (
-                                                        c.lastMessage.isDeleted ? <span className="italic text-gray-400">Message deleted</span> : c.lastMessage.content
+                                                        c.lastMessage.isDeleted ? <span className="italic text-gray-400 dark:text-gray-500">Message deleted</span> : c.lastMessage.content
                                                     ) : (
                                                         c.isGroup ? `${memberCount ?? ''} members` : "Start chatting!"
                                                     )}
@@ -236,23 +236,23 @@ export default function Sidebar({
                         <div className="space-y-2 p-3">
                             {[1, 2, 3].map(i => (
                                 <div key={i} className="animate-pulse flex items-center p-2 gap-3">
-                                    <div className="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0" />
+                                    <div className="w-10 h-10 bg-gray-200 dark:bg-gray-800 rounded-full flex-shrink-0" />
                                     <div className="flex-1 space-y-2">
-                                        <div className="h-3 bg-gray-200 rounded w-24" />
-                                        <div className="h-2.5 bg-gray-100 rounded w-40" />
+                                        <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-24" />
+                                        <div className="h-2.5 bg-gray-100 dark:bg-gray-800 rounded w-40" />
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : users.length === 0 ? (
                         <div className="py-12 text-center px-6">
-                            <div className="mx-auto w-14 h-14 bg-gray-50 rounded-full flex items-center justify-center mb-3">
-                                <Users className="w-7 h-7 text-gray-300" />
+                            <div className="mx-auto w-14 h-14 bg-gray-50 dark:bg-gray-900 rounded-full flex items-center justify-center mb-3">
+                                <Users className="w-7 h-7 text-gray-300 dark:text-gray-600" />
                             </div>
-                            <p className="text-sm font-semibold text-gray-500">
+                            <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
                                 {searchTerm ? "No users found" : "No other users yet"}
                             </p>
-                            <p className="text-xs text-gray-400 mt-1">
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                                 {searchTerm ? "Try a different name" : "Share the app link to invite others!"}
                             </p>
                         </div>
@@ -262,7 +262,7 @@ export default function Sidebar({
                                 <button
                                     key={u._id}
                                     onClick={() => startConversation(u._id)}
-                                    className="w-full text-left flex items-center p-2.5 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
+                                    className="w-full text-left flex items-center p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
                                 >
                                     <div className="relative flex-shrink-0">
                                         {u.image ? (
@@ -277,7 +277,7 @@ export default function Sidebar({
                                                 <img src={u.image} alt={u.name} className="w-10 h-10 rounded-full object-cover border border-gray-100 hover:opacity-90 transition-opacity" />
                                             </div>
                                         ) : (
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-blue-700 font-bold text-sm">
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-indigo-900/50 dark:to-blue-900/50 flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-sm border border-blue-50 dark:border-blue-900/30">
                                                 {u.name?.charAt(0) ?? "U"}
                                             </div>
                                         )}
@@ -286,8 +286,8 @@ export default function Sidebar({
                                         )}
                                     </div>
                                     <div className="ml-3 flex-1 min-w-0">
-                                        <p className="text-sm font-semibold text-gray-900 truncate">{u.name}</p>
-                                        <p className={`text-xs font-medium ${u.isOnline ? 'text-green-500' : 'text-gray-400'}`}>
+                                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{u.name}</p>
+                                        <p className={`text-xs font-medium ${u.isOnline ? 'text-green-500' : 'text-gray-400 dark:text-gray-500'}`}>
                                             {u.isOnline ? 'Online' : 'Offline'}
                                         </p>
                                     </div>
@@ -305,29 +305,29 @@ export default function Sidebar({
                     className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 cursor-default"
                     onClick={() => { setShowGroupModal(false); setSelectedGroupMembers([]); setGroupName(""); }}
                 >
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-fade-in" onClick={e => e.stopPropagation()}>
-                        <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                            <h3 className="text-base font-bold text-gray-800">New Group Chat</h3>
-                            <button onClick={() => { setShowGroupModal(false); setSelectedGroupMembers([]); setGroupName(""); }} className="p-1 rounded-full hover:bg-gray-100 cursor-pointer">
-                                <X className="w-5 h-5 text-gray-500" />
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-fade-in border border-transparent dark:border-gray-800" onClick={e => e.stopPropagation()}>
+                        <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                            <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">New Group Chat</h3>
+                            <button onClick={() => { setShowGroupModal(false); setSelectedGroupMembers([]); setGroupName(""); }} className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
+                                <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                             </button>
                         </div>
                         <div className="p-4 space-y-4">
                             <div>
-                                <label className="block text-xs font-semibold text-gray-600 mb-1.5">Group Name</label>
+                                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">Group Name</label>
                                 <input
                                     type="text"
                                     placeholder="e.g. Study Group, Team Syncs..."
                                     value={groupName}
                                     onChange={e => setGroupName(e.target.value)}
-                                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                    className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+                                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
                                     Add Members ({selectedGroupMembers.length} selected)
                                 </label>
-                                <div className="max-h-48 overflow-y-auto space-y-1 border border-gray-100 rounded-xl p-1">
+                                <div className="max-h-48 overflow-y-auto space-y-1 border border-gray-100 dark:border-gray-800 rounded-xl p-1">
                                     {users === undefined ? (
                                         <p className="text-xs text-gray-400 text-center py-4">Loading...</p>
                                     ) : users.length === 0 ? (
@@ -339,18 +339,18 @@ export default function Sidebar({
                                                 <button
                                                     key={u._id}
                                                     onClick={() => toggleGroupMember(u._id)}
-                                                    className={`w-full flex items-center gap-3 p-2 rounded-lg text-left transition-colors ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+                                                    className={`w-full flex items-center gap-3 p-2 rounded-lg text-left transition-colors ${isSelected ? 'bg-blue-50 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
                                                 >
                                                     <div className="relative flex-shrink-0">
                                                         {u.image ? (
                                                             <img src={u.image} alt={u.name} className="w-8 h-8 rounded-full object-cover" />
                                                         ) : (
-                                                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">
+                                                            <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-indigo-900 flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-xs">
                                                                 {u.name?.charAt(0)}
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <span className="text-sm font-medium text-gray-800 flex-1 truncate">{u.name}</span>
+                                                    <span className="text-sm font-medium text-gray-800 dark:text-gray-200 flex-1 truncate">{u.name}</span>
                                                     {isSelected && <Check className="w-4 h-4 text-blue-500 flex-shrink-0" />}
                                                 </button>
                                             );
@@ -359,7 +359,7 @@ export default function Sidebar({
                                 </div>
                             </div>
                         </div>
-                        <div className="p-4 border-t border-gray-100">
+                        <div className="p-4 border-t border-gray-100 dark:border-gray-800">
                             <button
                                 onClick={handleCreateGroup}
                                 disabled={!groupName.trim() || selectedGroupMembers.length === 0 || isCreatingGroup}
