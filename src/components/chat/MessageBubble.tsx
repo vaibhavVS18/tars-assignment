@@ -11,6 +11,7 @@ interface MessageBubbleProps {
     isGroup: boolean;
     isSelecting: boolean;
     isSelected: boolean;
+    isOnlySelected: boolean;
     isSameAsPrev: boolean;
     isSameAsNext: boolean;
     showDateDivider: boolean;
@@ -28,7 +29,7 @@ interface MessageBubbleProps {
 }
 
 export default function MessageBubble({
-    message: m, isMe, isGroup, isSelecting, isSelected,
+    message: m, isMe, isGroup, isSelecting, isSelected, isOnlySelected,
     isSameAsPrev, isSameAsNext, showDateDivider, openDropdownId,
     onReply, onDelete, onReact, onSelect, onSetDropdown,
     onContextMenu, onOpenLightbox, onTouchStart, onTouchMove, onTouchEnd,
@@ -106,9 +107,23 @@ export default function MessageBubble({
 
                     {/* Bubble wrapper */}
                     <div
-                        className={`bubble-wrap flex flex-col max-w-[72%] sm:max-w-[60%] ${isMe ? "items-end" : "items-start"}`}
+                        className={`bubble-wrap flex flex-col max-w-[72%] sm:max-w-[60%] relative ${isMe ? "items-end" : "items-start"}`}
                         onClick={() => isSelecting && onSelect(m._id)}
                     >
+                        {/* ── WhatsApp-like Mobile Reaction Picker (when exactly 1 message is selected) ── */}
+                        {isOnlySelected && !m.isDeleted && (
+                            <div className={`absolute bottom-full mb-1 cursor-default sm:hidden ${isMe ? "right-0" : "left-0"} bg-white dark:bg-gray-800 shadow-xl rounded-full border border-gray-100 dark:border-gray-700 px-3 py-2 flex gap-3 z-50 animate-fade-in`}>
+                                {REACTION_EMOJIS.map(emoji => (
+                                    <button
+                                        key={emoji}
+                                        onClick={(e) => { e.stopPropagation(); onReact(m._id, emoji); }}
+                                        className="text-xl hover:scale-125 transition-transform"
+                                    >
+                                        {emoji}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                         {/* Group sender name */}
                         {!isMe && !isSameAsPrev && isGroup && (
                             <div className="flex items-center gap-1.5 mb-1 ml-1">

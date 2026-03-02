@@ -209,6 +209,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
     // ── Reactions ──
     const handleToggleReaction = async (messageId: Id<"messages">, emoji: string) => {
         setCtxMenu(null);
+        setSelectedIds(new Set()); // Clear selection when reacting like WhatsApp
         try { await toggleReaction({ messageId, emoji }); }
         catch (e) { console.error("Failed to react", e); }
     };
@@ -402,6 +403,7 @@ export default function ChatArea({ conversationId, onBack }: ChatAreaProps) {
                                     isGroup={isGroup}
                                     isSelecting={isSelecting}
                                     isSelected={selectedIds.has(m._id)}
+                                    isOnlySelected={isSelecting && selectedIds.size === 1 && selectedIds.has(m._id)}
                                     isSameAsPrev={!!(prev && prev.senderId === m.senderId)}
                                     isSameAsNext={!!(next && next.senderId === m.senderId)}
                                     showDateDivider={!prev || new Date(prev._creationTime).toDateString() !== new Date(m._creationTime).toDateString()}
