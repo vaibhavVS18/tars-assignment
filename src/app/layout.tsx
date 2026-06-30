@@ -6,6 +6,12 @@ import { ConvexClientProvider } from "@/providers/ConvexClientProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
+
+import Script from 'next/script';
+
+// inside RootLayout, before </body>:
+
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -36,6 +42,13 @@ export default function RootLayout({
             <ConvexClientProvider>
               <ThemeToggle />
               {children}
+
+      <Script
+        src="https://journiks.vercel.app/widget.js"
+        data-key="jk_live_77e703fdb5a9374c41dcab471bbf8cda12b06322aa563d9991efe881d69000cf"
+        strategy="lazyOnload"
+      />
+
             </ConvexClientProvider>
           </ClerkThemeProvider>
         </ThemeProvider>
